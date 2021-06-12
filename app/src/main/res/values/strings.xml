@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">Clokroid</string>
+    <string name="buttonPreferences">Preferences</string>
+    <string name="buttonExit">Exit</string>
+    <string name="buttonShowLogs">Show logs</string>
+    <string name="buttonStartBackgroundActs">Start background activities</string>
+    <string name="buttonTestConnection">Test connection</string>
+    <string name="checkBoxClear">Clear on exit</string>
+    <string name="contentEmptyHour">00?00</string>
+    <string name="title_activity_diagnostic">Diagnostics</string>
+
+    <string name="textLogsCleared">Logs cleared</string>
+    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <string name="title_activity_scrolled_string">ScrolledString</string>
+
+    <integer name="idAlarmHomeNetworker">0</integer>
+    <integer name="idAlarmHider">1</integer>
+</resources>
