@@ -14,6 +14,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Clokroid">
         <activity
+            android:name=".SettingsActivity"
+            android:label="@string/titleActivitySettings"></activity>
+        <activity
             android:name=".ScrolledString"
             android:label="@string/title_activity_scrolled_string"
             android:theme="@style/Theme.Clokroid.NoActionBar" />

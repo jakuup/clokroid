@@ -10,9 +10,23 @@
     <string name="title_activity_diagnostic">Diagnostics</string>
 
     <string name="textLogsCleared">Logs cleared</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_scrolled_string">ScrolledString</string>
 
     <integer name="idAlarmHomeNetworker">0</integer>
     <integer name="idAlarmHider">1</integer>
+
+    <!-- Common -->
+    <string name="seconds">seconds</string>
+
+    <!-- Preference Titles -->
+    <string name="titleActivitySettings">Settings and Diagnostics</string>
+
+    <!-- Bluetooth Preferences -->
+    <string name="prefsBth">Bluetooth</string>
+    <string name="prefsBthAutoConnect">Auto connect</string>
+    <string name="prefsBthAutoConnectionInterval">Auto connection interval</string>
+    <string name="prefsBthDevice">Selected device</string>
+    <string name="prefsBthDeviceNone">None</string>
+    <string name="prefsBthDeviceEmpty">No paired devices</string>
+    <string name="prefsBthChangeDevice">Use another device</string>
 </resources>

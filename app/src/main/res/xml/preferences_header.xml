@@ -1,0 +1,16 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <Preference
+        app:fragment="com.jakuup.clokroid.SettingsActivity$BluetoothFragment"
+        app:title="@string/prefsBth" />
+
+    <Preference
+        app:key="activity"
+        app:title="Diagnostics">
+        <intent
+            android:targetClass="com.jakuup.clokroid.DiagnosticsActivity"
+            android:targetPackage="com.jakuup.clokroid" />
+    </Preference>
+
+</PreferenceScreen>
