@@ -12,9 +12,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -25,6 +23,16 @@ public class MainActivity extends AppCompatActivity {
     private static final int UI_ANIMATION_DELAY = 300;
     private final Handler handler = new Handler();
     private boolean controlsVisible;
+
+    private TimerScheduler clockUpdater;
+    private final Runnable clockUpdaterTask = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "CLK ###");
+            String time = String.format("%1$tH:%1$tM", Calendar.getInstance());
+            textClock.setText(time);
+        }
+    };
 
     private View viewBackground;
     private View viewControls;
@@ -64,27 +72,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     };
 
-    private Timer clockTimer;
-
-/*
-    private HomeNetworker hnService;
-    private boolean hnBound = false;
-    private final ServiceConnection hnConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            HomeNetworker.HomeNetworkerBinder binder = (HomeNetworker.HomeNetworkerBinder)service;
-            hnService = binder.getService();
-            hnBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            hnBound = false;
-        }
-    };*/
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -118,45 +105,28 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        //Intent intent = new Intent(this, HomeNetworker.class);
-        //bindService(intent, hnConnection, Context.BIND_AUTO_CREATE);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        //if (hnBound) {
-//            unbindService(hnConnection);
-//            hnBound = false;
-//        }
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        clockTimer.cancel();
+        TimerScheduler.pause();
+        clockUpdater = null;
     }
 
     @Override
     public void onResume() {
         super.onResume();
+        TimerScheduler.resume();
 
-        clockTimer = new Timer();
-        TimerTask clockTimerTask = new TimerTask() {
-            @Override
-            public void run() {
-                handler.post(updateClock);
-            }
-        };
-
-        clockTimer.scheduleAtFixedRate(clockTimerTask, 0, 1000);
+        clockUpdater = new TimerScheduler(clockUpdaterTask);
+        clockUpdater.schedule(1);
     }
-
-    private final Runnable updateClock = () -> {
-        String time = String.format("%1$tH:%1$tM", Calendar.getInstance());
-
-        textClock.setText(time);
-    };
 
     private final Runnable doHide = () ->
               viewBackground.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LOW_PROFILE
@@ -196,17 +166,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             show();
             startAutoHide();
-/*
-            autoHideTimer = new Timer();
-            TimerTask autoHideTimerTask = new TimerTask() {
-                @Override
-                public void run() {
-                    handler.post(runHide);
-                }
-            };
-
-            clockTimer.schedule(autoHideTimerTask, 5000);
- */
         }
     }
 
