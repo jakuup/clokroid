@@ -34,4 +34,7 @@ public class TimerScheduler {
         timer.scheduleAtFixedRate(timerTask, 0, periodInSecs * 1000);
     }
 
+    public void cancel() {
+        timerTask.cancel();
+    }
 }
