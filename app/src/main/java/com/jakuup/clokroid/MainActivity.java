@@ -11,13 +11,14 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements A2DPConnectorCallback {
     private static final String TAG = "MainActivity";
 
     private static final int UI_ANIMATION_DELAY = 300;
@@ -28,11 +29,23 @@ public class MainActivity extends AppCompatActivity {
     private final Runnable clockUpdaterTask = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "CLK ###");
             String time = String.format("%1$tH:%1$tM", Calendar.getInstance());
             textClock.setText(time);
         }
     };
+
+    private TimerScheduler autoBluetoothConnector;
+    private final Runnable autoBluetoothConnectorTask = new Runnable() {
+        @Override
+        public void run() {
+            connectA2DP();
+        }
+    };
+    private boolean autoBluetoothConnect;
+    private String autoBluetoothDevice;
+    private int autoBluetoothInterval;
+
+    private SharedPreferences preferences;
 
     private View viewBackground;
     private View viewControls;
@@ -42,15 +55,6 @@ public class MainActivity extends AppCompatActivity {
         switch (motionEvent.getAction()) {
             case MotionEvent.ACTION_DOWN:
                 if (view == findViewById(R.id.buttonPreferences)) {
-                    // =========== TO REMOVE -- start
-                    //Intent diagnostics = new Intent(this, DiagnosticsActivity.class);
-                    //startActivityForResult(diagnostics, REQ_CODE_DIAGNOSTICS);
-                    //---
-                    //SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-                    //SharedPreferences.Editor editor = preferences.edit();
-                    //editor.putString("bth_paired_devices", "Alpha;Bravo Charlie;delt@,echo 0");
-                    //editor.commit();
-                    // =========== TO REMOVE -- end
                     Intent settings = new Intent(this, SettingsActivity.class);
                     startActivity(settings);
                     stopHideTimer();
@@ -72,6 +76,37 @@ public class MainActivity extends AppCompatActivity {
         return false;
     };
 
+    private A2DPConnector a2DPConnector;
+    private boolean a2DPConnected = false;
+
+    private void connectA2DP() {
+        if (!a2DPConnected) {
+            a2DPConnector.connect(autoBluetoothDevice);
+        }
+    }
+
+    private void disconnectA2DP() {
+        a2DPConnector.disconnect();
+    }
+
+    @Override
+    public void notifyA2DPDevicesNames(String names) {
+        SharedPreferences.Editor editor = preferences.edit();
+        editor.putString("bth_paired_devices", names);
+        editor.apply();
+    }
+
+    @Override
+    public void notifyA2DPConnected(boolean connected) {
+        Log.d(TAG, "device connected=" + connected);
+
+        if (connected) {
+            autoBluetoothConnector.cancel();
+            autoBluetoothConnector = null;
+        }
+        a2DPConnected = connected;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -87,8 +122,15 @@ public class MainActivity extends AppCompatActivity {
         viewControls.setOnClickListener(view -> toggle());
         textClock.setOnClickListener(view -> toggle());
 
-        findViewById(R.id.buttonExit).setOnTouchListener(onTouchListener);
         findViewById(R.id.buttonPreferences).setOnTouchListener(onTouchListener);
+        findViewById(R.id.buttonExit).setOnTouchListener(onTouchListener);
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+        a2DPConnector = new A2DPConnector(this);
+        a2DPConnector.setCallback(this);
+        a2DPConnector.start();
+        a2DPConnector.getBoundedDevices();
     }
 
     @Override
@@ -117,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
         TimerScheduler.pause();
         clockUpdater = null;
+        autoBluetoothConnector = null;
     }
 
     @Override
@@ -126,6 +169,18 @@ public class MainActivity extends AppCompatActivity {
 
         clockUpdater = new TimerScheduler(clockUpdaterTask);
         clockUpdater.schedule(1);
+
+        setupAutoBluetooth(preferences);
+        if (!a2DPConnected && autoBluetoothConnect && !autoBluetoothDevice.isEmpty()) {
+            autoBluetoothConnector = new TimerScheduler(autoBluetoothConnectorTask);
+            autoBluetoothConnector.schedule(autoBluetoothInterval);
+        }
+    }
+
+    private void setupAutoBluetooth(SharedPreferences sharedPreferences) {
+        autoBluetoothConnect = sharedPreferences.getBoolean("bth_auto_connect", false);
+        autoBluetoothDevice = sharedPreferences.getString("bth_auto_connect_device", "");
+        autoBluetoothInterval = Integer.parseInt(preferences.getString("bth_auto_connect_interval", "60"));
     }
 
     private final Runnable doHide = () ->
