@@ -104,6 +104,10 @@ public class MainActivity extends AppCompatActivity implements A2DPConnectorCall
             autoBluetoothConnector.cancel();
             autoBluetoothConnector = null;
         }
+        else {
+            autoBluetoothConnector = new TimerScheduler(autoBluetoothConnectorTask);
+            autoBluetoothConnector.schedule(autoBluetoothInterval);
+        }
         a2DPConnected = connected;
     }
 
