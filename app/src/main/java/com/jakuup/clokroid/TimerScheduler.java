@@ -1,8 +1,8 @@
 package com.jakuup.clokroid;
 
 import android.os.Handler;
-import android.util.Log;
 
+import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -30,8 +30,14 @@ public class TimerScheduler {
         timer = new Timer();
     }
 
-    public void schedule(int periodInSecs) {
-        timer.scheduleAtFixedRate(timerTask, 0, periodInSecs * 1000);
+    public void scheduleAtFixedRate(int periodInSecs) {
+        timer.scheduleAtFixedRate(timerTask, 0,  periodInSecs * 1000);
+    }
+
+    public void scheduleAtFullMinutes() {
+        int currentSecs = Calendar.getInstance().get(Calendar.SECOND);
+        int leftSecs = 60 - currentSecs;
+        timer.scheduleAtFixedRate(timerTask, leftSecs * 1000, 60 * 1000);
     }
 
     public void cancel() {

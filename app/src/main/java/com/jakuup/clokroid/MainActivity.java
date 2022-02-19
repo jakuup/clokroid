@@ -11,12 +11,12 @@ import android.os.Handler;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
+
 
 public class MainActivity extends AppCompatActivity implements A2DPConnectorCallback {
     private static final String TAG = "MainActivity";
@@ -26,21 +26,10 @@ public class MainActivity extends AppCompatActivity implements A2DPConnectorCall
     private boolean controlsVisible;
 
     private TimerScheduler clockUpdater;
-    private final Runnable clockUpdaterTask = new Runnable() {
-        @Override
-        public void run() {
-            String time = String.format("%1$tH:%1$tM", Calendar.getInstance());
-            textClock.setText(time);
-        }
-    };
+    private final Runnable clockUpdaterTask = this::updateClock;
 
     private TimerScheduler autoBluetoothConnector;
-    private final Runnable autoBluetoothConnectorTask = new Runnable() {
-        @Override
-        public void run() {
-            connectA2DP();
-        }
-    };
+    private final Runnable autoBluetoothConnectorTask = this::connectA2DP;
     private boolean autoBluetoothConnect;
     private String autoBluetoothDevice;
     private int autoBluetoothInterval;
@@ -76,6 +65,11 @@ public class MainActivity extends AppCompatActivity implements A2DPConnectorCall
         return false;
     };
 
+    private void updateClock() {
+        String time = String.format("%1$tH:%1$tM", Calendar.getInstance());
+        textClock.setText(time);
+    }
+
     private A2DPConnector a2DPConnector;
     private boolean a2DPConnected = false;
 
@@ -104,9 +98,11 @@ public class MainActivity extends AppCompatActivity implements A2DPConnectorCall
             autoBluetoothConnector.cancel();
             autoBluetoothConnector = null;
         }
-        else {
+        else if (a2DPConnected) {
+            /* this is being run only and only if disconnection is notified
+               after device connecting */
             autoBluetoothConnector = new TimerScheduler(autoBluetoothConnectorTask);
-            autoBluetoothConnector.schedule(autoBluetoothInterval);
+            autoBluetoothConnector.scheduleAtFixedRate(autoBluetoothInterval);
         }
         a2DPConnected = connected;
     }
@@ -171,13 +167,14 @@ public class MainActivity extends AppCompatActivity implements A2DPConnectorCall
         super.onResume();
         TimerScheduler.resume();
 
+        clockUpdaterTask.run();
         clockUpdater = new TimerScheduler(clockUpdaterTask);
-        clockUpdater.schedule(1);
+        clockUpdater.scheduleAtFullMinutes();
 
         setupAutoBluetooth(preferences);
         if (!a2DPConnected && autoBluetoothConnect && !autoBluetoothDevice.isEmpty()) {
             autoBluetoothConnector = new TimerScheduler(autoBluetoothConnectorTask);
-            autoBluetoothConnector.schedule(autoBluetoothInterval);
+            autoBluetoothConnector.scheduleAtFixedRate(autoBluetoothInterval);
         }
     }
 

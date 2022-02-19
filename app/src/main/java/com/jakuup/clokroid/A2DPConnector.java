@@ -60,18 +60,19 @@ public class A2DPConnector extends HandlerThread {
                 String action = intent.getAction();
                 if (action.equals(BluetoothA2dp.ACTION_CONNECTION_STATE_CHANGED)) {
                     int state = intent.getIntExtra(BluetoothA2dp.EXTRA_STATE, BluetoothA2dp.STATE_DISCONNECTED);
-                    if (state == BluetoothA2dp.STATE_CONNECTING) {
-                        mLogger.write(TAG, "Connecting...");
-                    } else if (state == BluetoothA2dp.STATE_CONNECTED) {
-                        mLogger.write(TAG, "Connected");
+                    if (state == BluetoothA2dp.STATE_CONNECTED) {
+                        mLogger.kick(TAG + ": connected");
                         myCallback.get().notifyA2DPConnected(true);
-                    } else if (state == BluetoothA2dp.STATE_DISCONNECTING) {
-                        mLogger.write(TAG, "Disconnecting...");
                     } else if (state == BluetoothA2dp.STATE_DISCONNECTED) {
                         currentBluetoothDevice = null;
                         myCallback.get().notifyA2DPConnected(false);
-                        mLogger.write(TAG, "Disconnected");
-                    }
+                        mLogger.kick(TAG + ": disconnected");
+                    } /*
+                    else if (state == BluetoothA2dp.STATE_CONNECTING) {
+                        Log.d(TAG, "Connecting...");
+                    } else if (state == BluetoothA2dp.STATE_DISCONNECTING) {
+                        Log.d(TAG, "Disconnecting...");
+                    } */
                 }
             }
         };
