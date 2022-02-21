@@ -4,7 +4,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.InputType;
 import android.view.MenuItem;
+import android.widget.EditText;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -174,6 +176,7 @@ public class SettingsActivity extends AppCompatActivity implements
             editConnectInterval = new EditTextPreference(context);
             editConnectInterval.setKey("bth_auto_connect_interval");
             editConnectInterval.setTitle(R.string.prefsBthAutoConnectionInterval);
+            editConnectInterval.setOnBindEditTextListener(editText -> editText.setInputType(InputType.TYPE_CLASS_NUMBER));
             onPreferenceChange(editConnectInterval, interval);
             editConnectInterval.setOnPreferenceChangeListener(this);
             editConnectInterval.setVisible(visible);

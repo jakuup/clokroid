@@ -175,26 +175,30 @@ public class A2DPConnector extends HandlerThread {
         mLogger = new Logger();
 
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!bluetoothAdapter.isEnabled()) {
+        if (bluetoothAdapter != null) {
+            if (!bluetoothAdapter.isEnabled()) {
 
-            BroadcastReceiver bluetoothEnabledReceiver = new BroadcastReceiver() {
-                @Override
-                public void onReceive(Context context, Intent intent) {
-                    String action = intent.getAction();
-                    if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
-                        int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF);
-                        if (state == BluetoothAdapter.STATE_ON) {
-                            getProxyAndMethods(bluetoothAdapter);
+                BroadcastReceiver bluetoothEnabledReceiver = new BroadcastReceiver() {
+                    @Override
+                    public void onReceive(Context context, Intent intent) {
+                        String action = intent.getAction();
+                        if (action.equals(BluetoothAdapter.ACTION_STATE_CHANGED)) {
+                            int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.STATE_OFF);
+                            if (state == BluetoothAdapter.STATE_ON) {
+                                getProxyAndMethods(bluetoothAdapter);
+                            }
                         }
                     }
-                }
-            };
+                };
 
-            mContext.registerReceiver(bluetoothEnabledReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
-            bluetoothAdapter.enable();
+                mContext.registerReceiver(bluetoothEnabledReceiver, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
+                bluetoothAdapter.enable();
+            } else {
+                getProxyAndMethods(bluetoothAdapter);
+            }
         }
         else {
-            getProxyAndMethods(bluetoothAdapter);
+            mLogger.write(TAG, "Bluetooth is not supported in the hardware");
         }
     }
 
